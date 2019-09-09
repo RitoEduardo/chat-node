@@ -21,6 +21,9 @@ socket.on('connect', function() {
         room: user.room
     }, function(resp, toUser) {
         console.log("Usuarios conectados", resp);
+
+        fnRenderUsers(user.room, resp.people);
+
         window.toUsersChat = resp.people;
         window.toUser = toUser;
     })
@@ -58,10 +61,17 @@ socket.on('notificationMsg', function(resp) {
 
     if (resp && resp.connect == true) {
         window.toUsersChat.push(resp.user);
+        fnAddUser(resp.user);
+        wellcomeBye(resp, true);
     } else if (resp && resp.connect == false) {
         window.toUsersChat = window.toUsersChat.filter(p => p.id != resp.user.id);
+        fnByeUser(resp.user);
+        wellcomeBye(resp, false);
+    } else {
+        renderMessage(resp, true);
     }
 
+    scrollBottom();
     console.log(resp.user.name + " - " + resp.message + " - " + new Date(resp.date).toTimeString());
 
 });
@@ -69,5 +79,4 @@ socket.on('notificationMsg', function(resp) {
 //Escuchar información de manera privada
 socket.on('messagePrivate', function(resp) {
     console.log("** Mensaje privado de " + resp.user.name + " - " + resp.message + " - " + new Date(resp.date).toTimeString());
-
 });

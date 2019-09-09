@@ -53,7 +53,22 @@ io.on('connection', (client) => {
     */
 
     //Mensajes para todos
-    client.on('sendMessage', (data) => { client.broadcast.emit('notificationMsg', createMsg(users.getUser(client.id), data.message)) });
+    client.on('sendMessage', (data, callback) => {
+        if (!data.message) {
+            return callback({
+                success: false,
+                error: "The Message is necesary",
+                data
+            });
+        }
+        let sendMsg = createMsg(users.getUser(client.id), data.message);
+        client.broadcast.emit('notificationMsg', sendMsg);
+        callback({
+            success: true,
+            message: "OK",
+            response: sendMsg
+        });
+    });
 
     client.on('sendMessageForRoom', (data) => {
         if (data.room) {
